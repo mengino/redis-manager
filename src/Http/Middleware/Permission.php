@@ -3,20 +3,18 @@ declare(strict_types=1);
 
 namespace Encore\RedisManager\Http\Middleware;
 
-use Encore\RedisManager\RedisManager;
-
-class Authenticate
+class Permission
 {
     /**
      * Handle the incoming request.
      *
-     * @param Illuminate\Http\Request $request
-     * @param \Closure                 $next
+     * @param \Illuminate\Http\Request $request
+     * @param \Closure $next
      *
      * @return \Illuminate\Http\Response|null
      */
     public function handle($request, $next)
     {
-        return RedisManager::check($request) ? $next($request) : abort(403);
+        return config('redis-manager.readonly', true) ? abort(403): $next($request);
     }
 }

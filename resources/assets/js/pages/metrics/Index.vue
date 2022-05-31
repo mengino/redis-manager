@@ -1,15 +1,13 @@
 <template>
-    <layout>
-        <router-view/>
-    </layout>
+  <layout>
+    <router-view />
+  </layout>
 </template>
 
 <script>
+import Layout from "../../components/Layout.vue";
 
-    import Layout from "../../components/Layout.vue"
-
-    export default {
-        components: { Layout },
-    }
-
+export default {
+  components: { Layout },
+};
 </script>

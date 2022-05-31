@@ -1,37 +1,34 @@
 <template>
-    <div class="hash-form">
-        <el-form :model="form" :rules="rules" ref="form" label-width="100px">
-            
-            <el-form-item label="Key" prop="key">
-                <el-input v-model="form.key"></el-input>
-            </el-form-item>
+  <div class="hash-form">
+    <el-form :model="form" :rules="rules" ref="form" label-width="100px">
+      <el-form-item label="Key" prop="key">
+        <el-input v-model="form.key"></el-input>
+      </el-form-item>
 
-            <el-form-item label="Expire" prop="expire">
-                <el-input-number v-model="form.expire" :min="-1"></el-input-number>
-            </el-form-item>
+      <el-form-item label="Expire" prop="expire">
+        <el-input-number v-model="form.expire" :min="-1"></el-input-number>
+      </el-form-item>
 
-            <el-form-item
-                    v-for="(member, index) in form.members"
-                    :label="'Member ' + index"
-                    :key="index"
-                    :prop="'members.' + index + '.value'">
+      <el-form-item
+        v-for="(member, index) in form.members"
+        :label="'Member ' + index"
+        :key="index"
+        :prop="'members.' + index + '.value'"
+      >
+        <el-input v-model="member.value" class="value"></el-input>
+        <el-button @click.prevent="removeMember(member)">Remove</el-button>
+      </el-form-item>
 
-                <el-input v-model="member.value" class="value"></el-input>
-                <el-button @click.prevent="removeMember(member)">Remove</el-button>
-            </el-form-item>
-            
-            <el-form-item>
-                <el-button @click="addMember" type="success">Add Member</el-button>
-            </el-form-item>
+      <el-form-item>
+        <el-button @click="addMember" type="success">Add Member</el-button>
+      </el-form-item>
 
-            <el-form-item>
-                <el-button type="primary" @click="push('form')">Submit</el-button>
-                <el-button @click="resetForm('form')">Reset</el-button>
-            </el-form-item>
-
-        </el-form>
-    </div>
-    
+      <el-form-item>
+        <el-button type="primary" @click="push('form')">Submit</el-button>
+        <el-button @click="resetForm('form')">Reset</el-button>
+      </el-form-item>
+    </el-form>
+  </div>
 </template>
 <style>
 .hash-form {
@@ -48,26 +45,29 @@
 </style>
 <script>
 export default {
-
   data() {
     return {
       form: {
         key: "",
         expire: -1,
-        members: [{ value: "" }]
+        members: [{ value: "" }],
       },
       rules: {
-        key: [{ required: true, message: "Key is required", trigger: "change" }],
-        expire: [{ required: true, message: "Expire is required", trigger: "change" }],
+        key: [
+          { required: true, message: "Key is required", trigger: "change" },
+        ],
+        expire: [
+          { required: true, message: "Expire is required", trigger: "change" },
+        ],
         members: [
           {
             type: "array",
             required: true,
             message: "Please add at least one member",
-            trigger: "change"
-          }
-        ]
-      }
+            trigger: "change",
+          },
+        ],
+      },
     };
   },
 
@@ -76,19 +76,18 @@ export default {
   },
 
   methods: {
-
     push(formName) {
-      this.$refs[formName].validate(valid => {
+      this.$refs[formName].validate((valid) => {
         if (!valid) {
           return false;
         }
 
         this.$redis
           .lstore(this.form.key, this.form.members, this.form.expire)
-          .then(response => {
+          .then((response) => {
             this.$message({
               type: "success",
-              message: "Saved!"
+              message: "Saved!",
             });
 
             this.$router.push({ path: "/" });
@@ -110,6 +109,6 @@ export default {
     addMember() {
       this.form.members.push({ value: "" });
     },
-  }
+  },
 };
 </script>

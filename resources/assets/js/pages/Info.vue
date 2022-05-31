@@ -1,149 +1,160 @@
 <template>
-    <layout>
+  <layout>
+    <el-row :gutter="10" v-loading="loading">
+      <el-col :span="12">
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <span> Server </span>
+          </div>
 
-        <el-row :gutter=10
-            v-loading="loading">
-            <el-col :span=12 >
-                <el-card class="box-card">
-                    <div slot="header" class="clearfix">
-                        <span> Server </span>
-                    </div>
+          <table>
+            <tr v-for="(val, key) in info.Server" :key="key">
+              <td class="text">{{ key }}</td>
+              <td>
+                <code>{{ val }}</code>
+              </td>
+            </tr>
+          </table>
+        </el-card>
 
-                    <table>
-                        <tr v-for="(val, key) in info.Server" :key="key">
-                            <td class="text">{{ key }}</td>
-                            <td><code>{{ val }}</code></td>
-                        </tr>
-                    </table>
-                </el-card>
+        <br />
 
-                <br />
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <span> Clients </span>
+          </div>
 
-                <el-card class="box-card">
-                    <div slot="header" class="clearfix">
-                        <span> Clients </span>
-                    </div>
+          <table>
+            <tr v-for="(val, key) in info.Clients" :key="key">
+              <td class="text">{{ key }}</td>
+              <td>
+                <code>{{ val }}</code>
+              </td>
+            </tr>
+          </table>
+        </el-card>
 
-                    <table>
-                        <tr v-for="(val, key) in info.Clients" :key="key">
-                            <td class="text">{{ key }}</td>
-                            <td><code>{{ val }}</code></td>
-                        </tr>
-                    </table>
-                </el-card>
+        <br />
 
-                <br />
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <span> Stats </span>
+          </div>
 
-                <el-card class="box-card">
-                    <div slot="header" class="clearfix">
-                        <span> Stats </span>
-                    </div>
+          <table>
+            <tr v-for="(val, key) in info.Stats" :key="key">
+              <td class="text">{{ key }}</td>
+              <td>
+                <code>{{ val }}</code>
+              </td>
+            </tr>
+          </table>
+        </el-card>
 
-                    <table>
-                        <tr v-for="(val, key) in info.Stats" :key="key">
-                            <td class="text">{{ key }}</td>
-                            <td><code>{{ val }}</code></td>
-                        </tr>
-                    </table>
-                </el-card>
+        <br />
 
-                <br />
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <span> Replication </span>
+          </div>
 
-                <el-card class="box-card">
-                    <div slot="header" class="clearfix">
-                        <span> Replication </span>
-                    </div>
+          <table>
+            <tr v-for="(val, key) in info.Replication" :key="key">
+              <td class="text">{{ key }}</td>
+              <td>
+                <code>{{ val }}</code>
+              </td>
+            </tr>
+          </table>
+        </el-card>
+      </el-col>
 
-                    <table>
-                        <tr v-for="(val, key) in info.Replication" :key="key">
-                            <td class="text">{{ key }}</td>
-                            <td><code>{{ val }}</code></td>
-                        </tr>
-                    </table>
-                </el-card>
+      <el-col :span="12">
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <span> Memory </span>
+          </div>
 
-            </el-col>
+          <table>
+            <tr v-for="(val, key) in info.Memory" :key="key">
+              <td class="text">{{ key }}</td>
+              <td>
+                <code>{{ val }}</code>
+              </td>
+            </tr>
+          </table>
+        </el-card>
 
-            <el-col :span=12>
+        <br />
 
-                <el-card class="box-card">
-                    <div slot="header" class="clearfix">
-                        <span> Memory </span>
-                    </div>
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <span> CPU </span>
+          </div>
 
-                    <table>
-                        <tr v-for="(val, key) in info.Memory" :key="key">
-                            <td class="text">{{ key }}</td>
-                            <td><code>{{ val }}</code></td>
-                        </tr>
-                    </table>
-                </el-card>
+          <table>
+            <tr v-for="(val, key) in info.CPU" :key="key">
+              <td class="text">{{ key }}</td>
+              <td>
+                <code>{{ val }}</code>
+              </td>
+            </tr>
+          </table>
+        </el-card>
 
-                <br />
+        <br />
 
-                <el-card class="box-card">
-                    <div slot="header" class="clearfix">
-                        <span> CPU </span>
-                    </div>
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <span> Keyspace </span>
+          </div>
 
-                    <table>
-                        <tr v-for="(val, key) in info.CPU" :key="key">
-                            <td class="text">{{ key }}</td>
-                            <td><code>{{ val }}</code></td>
-                        </tr>
-                    </table>
-                </el-card>
+          <table>
+            <tr v-for="(val, key) in info.Keyspace" :key="key">
+              <td class="text">{{ key }}</td>
+              <td>
+                <pre>{{ val }}</pre>
+              </td>
+            </tr>
+          </table>
+        </el-card>
 
-                <br />
+        <br />
 
-                <el-card class="box-card">
-                    <div slot="header" class="clearfix">
-                        <span> Keyspace </span>
-                    </div>
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <span> Persistence </span>
+          </div>
 
-                    <table>
-                        <tr v-for="(val, key) in info.Keyspace" :key="key">
-                            <td class="text">{{ key }}</td>
-                            <td><pre>{{ val }}</pre></td>
-                        </tr>
-                    </table>
-                </el-card>
+          <table>
+            <tr v-for="(val, key) in info.Persistence" :key="key">
+              <td class="text">{{ key }}</td>
+              <td>
+                <code>{{ val }}</code>
+              </td>
+            </tr>
+          </table>
+        </el-card>
 
-                <br />
+        <br />
 
-                <el-card class="box-card">
-                    <div slot="header" class="clearfix">
-                        <span> Persistence </span>
-                    </div>
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <span> Cluster </span>
+          </div>
 
-                    <table>
-                        <tr v-for="(val, key) in info.Persistence" :key="key">
-                            <td class="text">{{ key }}</td>
-                            <td><code>{{ val }}</code></td>
-                        </tr>
-                    </table>
-                </el-card>
-
-                <br />
-
-                <el-card class="box-card">
-                    <div slot="header" class="clearfix">
-                        <span> Cluster </span>
-                    </div>
-
-                    <table>
-                        <tr v-for="(val, key) in info.Cluster" :key="key">
-                            <td class="text">{{ key }}</td>
-                            <td><code>{{ val }}</code></td>
-                        </tr>
-                    </table>
-                </el-card>
-
-            </el-col>
-
-        </el-row>
-
-    </layout>
+          <table>
+            <tr v-for="(val, key) in info.Cluster" :key="key">
+              <td class="text">{{ key }}</td>
+              <td>
+                <code>{{ val }}</code>
+              </td>
+            </tr>
+          </table>
+        </el-card>
+      </el-col>
+    </el-row>
+  </layout>
 </template>
 <style>
 code {
@@ -183,7 +194,7 @@ export default {
   data() {
     return {
       info: {},
-      loading: false
+      loading: false,
     };
   },
 
@@ -192,7 +203,7 @@ export default {
   mounted() {
     this.fetchInfo();
 
-    Bus.$on("connectionChanged", data => {
+    Bus.$on("connectionChanged", (data) => {
       this.fetchInfo();
     });
   },
@@ -204,12 +215,12 @@ export default {
   methods: {
     fetchInfo() {
       (this.loading = true),
-        this.$redis.info().then(response => {
+        this.$redis.info().then((response) => {
           this.info = response.data;
 
           this.loading = false;
         });
-    }
-  }
+    },
+  },
 };
 </script>

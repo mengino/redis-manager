@@ -1,6 +1,9 @@
 <?php
+declare(strict_types=1);
 
 namespace Encore\RedisManager\DataType;
+
+use Illuminate\Support\Arr;
 
 class Strings extends DataType
 {
@@ -25,9 +28,9 @@ class Strings extends DataType
      */
     public function store(array $params)
     {
-        $key = array_get($params, 'key');
-        $value = array_get($params, 'value');
-        $seconds = array_get($params, 'seconds');
+        $key = Arr::get($params, 'key');
+        $value = Arr::get($params, 'value');
+        $seconds = Arr::get($params, 'seconds');
 
         $this->getConnection()->set($key, $value);
 

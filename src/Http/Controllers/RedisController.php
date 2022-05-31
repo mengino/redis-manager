@@ -1,8 +1,8 @@
 <?php
+declare(strict_types=1);
 
 namespace Encore\RedisManager\Http\Controllers;
 
-use Encore\RedisManager\Http\Middleware\Authenticate;
 use Encore\RedisManager\RedisManager;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
@@ -11,14 +11,6 @@ use Illuminate\Support\Str;
 
 class RedisController extends BaseController
 {
-    /**
-     * Create a new controller instance.
-     */
-    public function __construct()
-    {
-        $this->middleware(Authenticate::class);
-    }
-
     /**
      * Index page.
      *
@@ -37,10 +29,14 @@ class RedisController extends BaseController
     public function connections()
     {
         $config = config('database.redis');
+        $info = config('redis-manager.info');
+        $type = config('redis-manager.type', true);
 
-        return collect($config)->filter(function ($conn) {
-            return is_array($conn);
-        })->keys();
+        return [
+            'list' => collect($config)->filter(fn ($conn) => is_array($conn))->keys(),
+            'info' => $info,
+            'type' => $type,
+        ];
     }
 
     /**
@@ -52,10 +48,7 @@ class RedisController extends BaseController
     {
         $manager = $this->manager();
 
-        return $manager->scan(
-            $request->get('pattern', '*'),
-            $request->get('count', config('redis-manager.results_per_page', 50))
-        );
+        return $manager->scan($request->get('pattern', '') ?: '');
     }
 
     /**
@@ -99,7 +92,20 @@ class RedisController extends BaseController
      */
     public function key(Request $request)
     {
-        return $this->manager()->fetch($request->get('key'));
+        $keyInfo = $this->manager()->fetch($request->get('key'));
+        if (isset($keyInfo['type']) && $keyInfo['type'] == 'string') {
+            if (!is_numeric($keyInfo['value'])) {
+                $value = @unserialize($keyInfo['value']);
+                if (is_array($value)) {
+                    $value = json_encode($value, JSON_UNESCAPED_UNICODE);
+                } elseif ($value === false) {
+                    $value = $keyInfo['value'];
+                }
+                $keyInfo['value'] = $value;
+            }
+        }
+
+        return $keyInfo;
     }
 
     /**
@@ -151,7 +157,7 @@ class RedisController extends BaseController
         } catch (\Exception $exception) {
             return [
                 'success' => false,
-                'data'    => $exception->getMessage(),
+                'data' => $exception->getMessage(),
                 'command' => $command,
             ];
         }
@@ -159,14 +165,14 @@ class RedisController extends BaseController
         if (is_string($result) && Str::startsWith($result, ['ERR ', 'WRONGTYPE '])) {
             return [
                 'success' => false,
-                'data'    => $result,
+                'data' => $result,
                 'command' => $command,
             ];
         }
 
         return [
             'success' => true,
-            'data'    => $result,
+            'data' => $result,
             'command' => $command,
         ];
     }

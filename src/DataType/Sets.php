@@ -1,6 +1,9 @@
 <?php
+declare(strict_types=1);
 
 namespace Encore\RedisManager\DataType;
+
+use Illuminate\Support\Arr;
 
 class Sets extends DataType
 {
@@ -17,9 +20,9 @@ class Sets extends DataType
      */
     public function update(array $params)
     {
-        $key = array_get($params, 'key');
-        $member = array_get($params, 'member');
-        $action = array_get($params, 'action');
+        $key = Arr::get($params, 'key');
+        $member = Arr::get($params, 'member');
+        $action = Arr::get($params, 'action');
 
         if ($action === 'srem') {
             $this->getConnection()->srem($key, $member);
@@ -35,9 +38,9 @@ class Sets extends DataType
      */
     public function store(array $params)
     {
-        $key = array_get($params, 'key');
-        $members = array_get($params, 'members');
-        $seconds = array_get($params, 'seconds');
+        $key = Arr::get($params, 'key');
+        $members = Arr::get($params, 'members');
+        $seconds = Arr::get($params, 'seconds');
 
         $this->getConnection()->sadd($key, $members);
 
@@ -57,8 +60,8 @@ class Sets extends DataType
      */
     public function remove(array $params)
     {
-        $key = array_get($params, 'key');
-        $member = array_get($params, 'member');
+        $key = Arr::get($params, 'key');
+        $member = Arr::get($params, 'member');
 
         return $this->getConnection()->srem($key, $member);
     }

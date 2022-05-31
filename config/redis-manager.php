@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 return [
 
@@ -26,18 +27,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Redis Manager Results Per Page
-    |--------------------------------------------------------------------------
-    |
-    | Here you can configure for the number of results will show in the
-    | Redis Manager search page.
-    |
-    */
-
-    'results_per_page' => 50,
-
-    /*
-    |--------------------------------------------------------------------------
     | Redis Manager Disable Commands
     |--------------------------------------------------------------------------
     |
@@ -50,4 +39,28 @@ return [
     'disable_commands' => [
         'flushdb',
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Redis Manager Information
+    |--------------------------------------------------------------------------
+    |
+    | Here you can set some information for Redis Manager.
+    | Use kv-pair format.
+    |
+    */
+
+    'info' => [],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Redis Manager Data Types
+    |--------------------------------------------------------------------------
+    |
+    | Determine which data types to use.
+    | If in read-only mode, all of the 'POST'/'PUT'/'DELETE' requests will be aborted.
+    |
+    */
+
+    'readonly' => true,
 ];

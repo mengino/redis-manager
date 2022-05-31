@@ -1,74 +1,101 @@
 <template>
-    <layout>
-        <div>
-            <div style="margin-top: 15px;">
-                <el-input placeholder="*" v-model="pattern" @keyup.enter.native="scan"></el-input>
+  <layout>
+    <div>
+      <div style="margin-top: 15px">
+        <el-input
+          placeholder="请输入要查询的 key（不支持模糊查询，逗号分隔可以查询多个key，格式如 a,b,c）"
+          v-model="pattern"
+          @keyup.enter.native="scan"
+        />
+        <div class="button-group">
+          <el-button
+            class="action-btns"
+            @click="scan"
+            type="primary"
+            size="small"
+          >
+            <i class="fa fa-search"></i>
+            &nbsp;Search
+          </el-button>
 
-                <div class="button-group">
-                  
-                    <el-button class="action-btns" @click="scan" type="primary" size="small"><i class="fa fa-search"></i>&nbsp;Search</el-button>
+          <div v-if="!readonly">
+            <el-button
+              :disabled="multipleSelection.length == 0"
+              type="danger"
+              size="small"
+              @click="multiDelete"
+            >
+              <i class="fa fa-trash"></i>
+              &nbsp;Delete
+              <span v-if="multipleSelection.length > 0">
+                {{ multipleSelection.length }} keys
+              </span>
+            </el-button>
 
-                    <div >
-                        <el-button :disabled="multipleSelection.length==0" type="danger" size="small" @click="multiDelete"><i class="fa fa-trash"></i>&nbsp;Delete
-                            <span v-if="multipleSelection.length>0">{{ multipleSelection.length }} keys</span>
-                        </el-button>
-
-                        <el-dropdown split-button type="success" size="small" @command="create">
-                            New
-                            <el-dropdown-menu slot="dropdown">
-                                <el-dropdown-item command="string">STRING</el-dropdown-item>
-                                <el-dropdown-item command="hash">HASH</el-dropdown-item>
-                                <el-dropdown-item command="list">LIST</el-dropdown-item>
-                                <el-dropdown-item command="set">SET</el-dropdown-item>
-                                <el-dropdown-item command="zset">ZSET</el-dropdown-item>
-                            </el-dropdown-menu>
-                        </el-dropdown>
-                    </div>
-                </div>
-            </div>
+            <el-dropdown
+              split-button
+              type="success"
+              size="small"
+              @command="create"
+            >
+              New
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="string">STRING</el-dropdown-item>
+                <el-dropdown-item command="hash">HASH</el-dropdown-item>
+                <el-dropdown-item command="list">LIST</el-dropdown-item>
+                <el-dropdown-item command="set">SET</el-dropdown-item>
+                <el-dropdown-item command="zset">ZSET</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </div>
         </div>
+      </div>
+    </div>
 
-        <div>
-            <el-table
-                    ref="multipleTable"
-                    :data="keys"
-                    tooltip-effect="dark"
-                    style="width: 100%"
-                    v-loading="loading"
-                    @selection-change="handleSelectionChange">
-                <el-table-column
-                        type="selection"
-                        width="55">
-                </el-table-column>
-                <el-table-column
-                        prop="key"
-                        label="Key">
-                </el-table-column>
-                <el-table-column
-                        prop="type"
-                        label="Type">
-                    <template slot-scope="scope">
-                        <el-tag :type="typeColor[scope.row.type]">{{ scope.row.type }}</el-tag>
-                    </template>
-
-                </el-table-column>
-                <el-table-column
-                        prop="ttl"
-                        label="TTL(s)">
-                </el-table-column>
-                <el-table-column
-                        label="Action"
-                        width="150">
-                    <template slot-scope="scope">
-                        <el-button size="mini" type="primary" plain @click="edit(scope.row.key, scope.row.type)"><i class="fa fa-edit"></i></el-button>
-                        <el-button size="mini" type="danger" plain @click="del(scope.row.key)"><i class="fa fa-trash"></i></el-button>
-                    </template>
-
-                </el-table-column>
-            </el-table>
-        </div>
-
-    </layout>
+    <div>
+      <el-table
+        ref="multipleTable"
+        :data="keys"
+        tooltip-effect="dark"
+        style="width: 100%"
+        v-loading="loading"
+        @selection-change="handleSelectionChange"
+      >
+        <el-table-column type="selection" width="55"> </el-table-column>
+        <el-table-column prop="key" label="Key"> </el-table-column>
+        <el-table-column prop="type" label="Type">
+          <template slot-scope="scope">
+            <el-tag :type="typeColor[scope.row.type]">
+              {{ scope.row.type }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="ttl" label="TTL(s)"> </el-table-column>
+        <el-table-column label="Action" width="150">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              type="primary"
+              plain
+              @click="edit(scope.row.key, scope.row.type)"
+            >
+              <i v-if="!readonly" class="fa fa-edit"></i>
+              <i v-else class="fa el-icon-info"></i>
+            </el-button>
+            <el-button
+              v-if="!readonly"
+              size="mini"
+              type="danger"
+              plain
+              @click="del(scope.row.key)"
+            >
+              <i class="fa fa-trash"></i>
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+  </layout>
 </template>
 
 <style>
@@ -83,32 +110,34 @@
 
 <script>
 import Layout from "../components/Layout.vue";
-import map from 'lodash/map'
+import map from "lodash/map";
 
 export default {
   components: {
-    Layout
+    Layout,
   },
 
   data() {
     return {
-      pattern: "*",
+      pattern: "",
       select: "1",
       multipleSelection: [],
       keys: [],
-      loading: true,
+      loading: false,
       typeColor: {
         string: "primary",
         list: "info",
         zset: "danger",
         hash: "warning",
-        set: "success"
-      }
+        set: "success",
+      },
+      readonly: true,
     };
   },
 
   created() {
     document.title = "Redis manager";
+    this.readonly = localStorage.getItem("readonly") === "true";
   },
 
   methods: {
@@ -117,9 +146,15 @@ export default {
     },
 
     scan() {
+      if (!this.pattern) {
+        return;
+      }
+
       this.loading = true;
 
-      this.$redis.scan(this.pattern).then(response => {
+      history.pushState(null, null, "?pattern=" + this.pattern);
+
+      this.$redis.scan(this.pattern).then((response) => {
         this.keys = response.data;
 
         this.loading = false;
@@ -134,7 +169,7 @@ export default {
       if (!keys.length) {
         this.$message({
           type: "info",
-          message: "Nothing to delete"
+          message: "Nothing to delete",
         });
 
         return;
@@ -150,13 +185,13 @@ export default {
       this.$confirm(message, "Notice", {
         confirmButtonText: "Confirm",
         cancelButtonText: "Cancel",
-        type: "warning"
+        type: "warning",
       })
         .then(() => {
-          this.$redis.del(keys).then(response => {
+          this.$redis.del(keys).then((response) => {
             this.$message({
               type: "success",
-              message: "Deleted!"
+              message: "Deleted!",
             });
 
             this.scan();
@@ -165,13 +200,13 @@ export default {
         .catch(() => {
           this.$message({
             type: "info",
-            message: "Delete canceled!"
+            message: "Delete canceled!",
           });
         });
     },
 
     multiDelete() {
-      let keys = map(this.multipleSelection, row => {
+      let keys = map(this.multipleSelection, (row) => {
         return row.key;
       });
 
@@ -184,19 +219,22 @@ export default {
 
     create(type) {
       this.$router.push({ path: "/create/" + type });
-    }
+    },
   },
 
   mounted() {
+    const pattern = location.search.replace("?pattern=", "");
+    this.pattern = decodeURIComponent(pattern);
+
     this.scan();
 
-    Bus.$on("connectionChanged", data => {
+    Bus.$on("connectionChanged", (data) => {
       this.scan();
     });
   },
 
   beforeDestroy() {
     Bus.$off("connectionChanged");
-  }
+  },
 };
 </script>

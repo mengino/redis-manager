@@ -1,76 +1,75 @@
 <template>
-    <div class="hash-form">
-        <el-form :model="form" ref="form" label-width="100px">
-            
-            <el-form-item label="Key" prop="key">
-                <el-input v-model="form.key" :disabled="true"></el-input>
-            </el-form-item>
+  <div class="hash-form">
+    <el-form :model="form" ref="form" label-width="100px">
+      <el-form-item label="Key" prop="key">
+        <el-input v-model="form.key" :disabled="true"></el-input>
+      </el-form-item>
 
-            <el-form-item label="Expire" prop="expire">
-                <el-input-number v-model="form.expire" :min="-1"></el-input-number>
-            </el-form-item>
+      <template v-if="!readonly">
+        <el-form-item label="Expire" prop="expire">
+          <el-input-number v-model="form.expire" :min="-1"></el-input-number>
+        </el-form-item>
 
-            <el-form-item>
-                <el-button type="primary" @click="expire()">Update expire</el-button>
-            </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="expire()">Update expire</el-button>
+        </el-form-item>
 
-            <div class="line"></div>
+        <div class="line"></div>
 
-            <el-form-item label="Push" prop="push">
-                <el-input v-model="push"></el-input>
-            </el-form-item>
+        <el-form-item label="Push" prop="push">
+          <el-input v-model="push"></el-input>
+        </el-form-item>
 
-            <el-form-item>
-                <el-button-group>
-                <el-button @click.prevent="leftPush()" type="primary">Left</el-button>
-                <el-button @click.prevent="rightPush()" type="primary">Right</el-button>
-                </el-button-group>
-            </el-form-item>
+        <el-form-item>
+          <el-button-group>
+            <el-button @click.prevent="leftPush()" type="primary">
+              Left
+            </el-button>
+            <el-button @click.prevent="rightPush()" type="primary">
+              Right
+            </el-button>
+          </el-button-group>
+        </el-form-item>
+      </template>
 
-            <el-form-item label="Members"> 
-                
-                <el-table
-                  :data="old"
-                  v-loading="loading"
-                  style="width: 100%">
-                  <el-table-column
-                    prop="index"
-                    label="Index">
-                  </el-table-column>
-                  <el-table-column
-                    prop="value"
-                    label="Value">
-                  </el-table-column>
-                  <el-table-column label="Action">
-                  <template slot-scope="scope">
-                    <el-button
-                      size="mini"
-                      type="primary"
-                      @click="handleEdit(scope.$index, scope.row.value)"><i class="el-icon-edit"></i></el-button>
-                    <el-button
-                      size="mini"
-                      type="danger"
-                      @click="handleDelete(scope.$index)"><i class="el-icon-delete"></i></el-button>
-                  </template>
-                </el-table-column>
-                </el-table>
+      <el-form-item label="Members">
+        <el-table :data="old" v-loading="loading" style="width: 100%">
+          <el-table-column prop="index" label="Index"> </el-table-column>
+          <el-table-column prop="value" label="Value"> </el-table-column>
+          <el-table-column label="Action" v-if="!readonly">
+            <template slot-scope="scope">
+              <el-button
+                size="mini"
+                type="primary"
+                @click="handleEdit(scope.$index, scope.row.value)"
+              >
+                <i class="el-icon-edit"></i>
+              </el-button>
+              <el-button
+                size="mini"
+                type="danger"
+                @click="handleDelete(scope.$index)"
+              >
+                <i class="el-icon-delete"></i>
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-form-item>
+    </el-form>
 
-            </el-form-item>
-
-        </el-form>
-
-        <el-dialog
-          :title="'Update index '+ edit.index"
-          :visible.sync="dialogVisible"
-          width="30%">
-          <span><el-input v-model="edit.value"></el-input></span>
-          <span slot="footer" class="dialog-footer">
-            <el-button @click="dialogVisible = false">Cancel</el-button>
-            <el-button type="primary" @click="submitEdit()">Submit</el-button>
-          </span>
-        </el-dialog>
-    </div>
-    
+    <el-dialog
+      :title="'Update index ' + edit.index"
+      :visible.sync="dialogVisible"
+      width="30%"
+    >
+      <span><el-input v-model="edit.value"></el-input></span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="submitEdit()">Submit</el-button>
+      </span>
+    </el-dialog>
+  </div>
 </template>
 <style>
 .hash-form {
@@ -86,7 +85,7 @@
 }
 </style>
 <script>
-    import isEmpty from 'lodash/isEmpty'
+import isEmpty from "lodash/isEmpty";
 
 export default {
   data() {
@@ -94,7 +93,7 @@ export default {
       form: {
         key: "",
         expire: -1,
-        members: [{ value: "" }]
+        members: [{ value: "" }],
       },
       old: [],
       push: "",
@@ -102,13 +101,15 @@ export default {
       dialogVisible: false,
       edit: {
         value: "",
-        index: ""
-      }
+        index: "",
+      },
+      readonly: true,
     };
   },
 
   created() {
     document.title = "Redis Manager - Edit list";
+    this.readonly = localStorage.getItem("readonly") === "true";
   },
 
   mounted() {
@@ -117,26 +118,26 @@ export default {
 
   methods: {
     expire() {
-      this.$redis.expire(this.form.key, this.form.expire).then(response => {
+      this.$redis.expire(this.form.key, this.form.expire).then((response) => {
         this.$message({
           type: "success",
-          message: "Saved!"
+          message: "Saved!",
         });
       });
     },
 
     submitForm(formName) {
-      this.$refs[formName].validate(valid => {
+      this.$refs[formName].validate((valid) => {
         if (!valid) {
           return false;
         }
 
         this.$redis
           .rpush(this.form.key, this.form.members, this.form.expire)
-          .then(response => {
+          .then((response) => {
             this.$message({
               type: "success",
-              message: "Saved!"
+              message: "Saved!",
             });
 
             this.$router.push({ path: "/" });
@@ -147,7 +148,7 @@ export default {
     load(key) {
       this.loading = true;
 
-      this.$redis.lall(key).then(response => {
+      this.$redis.lall(key).then((response) => {
         if (isEmpty(response.data)) {
           this.$router.push({ path: "/" });
           return;
@@ -161,18 +162,17 @@ export default {
         for (let index in response.data.value) {
           data.push({
             index,
-            value: response.data.value[index]
+            value: response.data.value[index],
           });
         }
 
         this.old = data;
+        this.loading = false;
       });
-
-      this.loading = false;
     },
 
     leftPush() {
-      this.$redis.lpush(this.form.key, [this.push]).then(response => {
+      this.$redis.lpush(this.form.key, [this.push]).then((response) => {
         this.push = "";
 
         this.load(this.form.key);
@@ -180,7 +180,7 @@ export default {
     },
 
     rightPush() {
-      this.$redis.rpush(this.form.key, [this.push]).then(response => {
+      this.$redis.rpush(this.form.key, [this.push]).then((response) => {
         this.push = "";
 
         this.load(this.form.key);
@@ -198,10 +198,10 @@ export default {
 
       this.$redis
         .lset(this.form.key, this.edit.index, this.edit.value)
-        .then(response => {
+        .then((response) => {
           this.$message({
             type: "success",
-            message: "Updated!"
+            message: "Updated!",
           });
 
           this.load(this.form.key);
@@ -215,19 +215,19 @@ export default {
         {
           confirmButtonText: "Remove",
           cancelButtonText: "Cancel",
-          type: "warning"
+          type: "warning",
         }
       ).then(() => {
-        this.$redis.ldel(this.form.key, index).then(response => {
+        this.$redis.ldel(this.form.key, index).then((response) => {
           this.$message({
             type: "success",
-            message: "Removed!"
+            message: "Removed!",
           });
 
           this.load(this.form.key);
         });
       });
-    }
-  }
+    },
+  },
 };
 </script>

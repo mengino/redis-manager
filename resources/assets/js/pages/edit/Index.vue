@@ -1,17 +1,24 @@
-
 <template>
-    <layout>
+  <layout>
+    <el-card class="box-card">
+      <div slot="header" class="clearfix">
+        <span>
+          查看详情 {{ current() }}
+          <el-tag type="success">{{ this.$route.query.key }}</el-tag>
+        </span>
+        <el-button
+          style="float: right;"
+          type="danger"
+          @click="back()"
+          size="mini"
+        >
+          <i class="el-icon-close"></i>
+        </el-button>
+      </div>
 
-        <el-card class="box-card">
-            <div slot="header" class="clearfix">
-              <span>Edit {{ current() }} <el-tag type="success">{{ this.$route.query.key }}</el-tag> </span>
-              <el-button style="float: right;" type="danger" @click="del" size="mini"><i class="el-icon-delete"></i></el-button>
-            </div>
-
-            <router-view/>
-
-        </el-card>
-    </layout>
+      <router-view />
+    </el-card>
+  </layout>
 </template>
 
 <style>
@@ -24,7 +31,6 @@ a.nav-link {
   background-color: #e6e6e6;
   margin: 10px 0 20px 0;
 }
-
 </style>
 
 <script type="text/ecmascript-6">
@@ -53,6 +59,10 @@ export default {
       return pickBy(this.types, function(type) {
         return type !== current;
       });
+    },
+
+    back(){
+      this.$router.go(-1);
     },
 
     del() {
@@ -86,4 +96,3 @@ export default {
   }
 };
 </script>
-

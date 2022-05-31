@@ -1,29 +1,27 @@
-
-import axios from 'axios';
+import axios from "axios";
 
 export default class {
-
   constructor() {
-      this.$http = axios.create({baseURL: window.basePath + '/api/'});
+    this.$http = axios.create({ baseURL: window.basePath + "/api/" });
 
-    this.conn = 'default';
+    this.conn = "";
   }
 
   static create() {
-    return new this;
+    return new this();
   }
 
   getConnection() {
-    return localStorage.getItem('conn') || 'default'
+    return localStorage.getItem("conn") || "default";
   }
 
   connections() {
-    return this.$http.get('/connections');
+    return this.$http.get("/connections");
   }
 
   info(section = null) {
-    return this.$http.get('/info', {
-      params: {section, conn: this.getConnection() },
+    return this.$http.get("/info", {
+      params: { section, conn: this.getConnection() },
     });
   }
 
@@ -31,45 +29,45 @@ export default class {
     const params = {
       key,
       seconds,
-      conn: this.getConnection()
-    }
+      conn: this.getConnection(),
+    };
 
-    return this.$http.put('/expire', params);
+    return this.$http.put("/expire", params);
   }
 
   get(key) {
-    return this.$http.get('/key', {
+    return this.$http.get("/key", {
       params: { key, conn: this.getConnection() },
     });
   }
 
   del(keys) {
-    return this.$http.delete('/keys', {
+    return this.$http.delete("/keys", {
       params: { keys, conn: this.getConnection() },
     });
   }
 
   set(key, value) {
     const params = {
-      type: 'string',
+      type: "string",
       key,
       value,
       conn: this.getConnection(),
     };
 
-    return this.$http.post('/keys', params);
+    return this.$http.post("/keys", params);
   }
 
   setex(key, seconds, value) {
     const params = {
-      type: 'string',
+      type: "string",
       key,
       value,
       seconds,
       conn: this.getConnection(),
     };
 
-    return this.$http.post('/keys', params);
+    return this.$http.post("/keys", params);
   }
 
   hgetall(key) {
@@ -78,14 +76,14 @@ export default class {
 
   hmset(key, dic, seconds = null) {
     const params = {
-      type: 'hash',
+      type: "hash",
       key,
       dic,
       seconds,
       conn: this.getConnection(),
     };
 
-    return this.$http.post('/keys', params);
+    return this.$http.post("/keys", params);
   }
 
   hset(key, name, value) {
@@ -98,11 +96,10 @@ export default class {
   }
 
   hdel(key, field) {
+    const type = "hash";
+    const conn = this.getConnection();
 
-    const type = 'hash'
-    const conn = this.getConnection()
-
-    return this.$http.delete('/keys/item', {
+    return this.$http.delete("/keys/item", {
       params: { key, field, type, conn },
     });
   }
@@ -113,92 +110,91 @@ export default class {
 
   sadd(key, members, seconds) {
     const params = {
-      type: 'set',
+      type: "set",
       key,
       members,
       seconds,
       conn: this.getConnection(),
     };
 
-    return this.$http.post('/keys', params);
+    return this.$http.post("/keys", params);
   }
 
   srem(key, member) {
     const params = {
-      type: 'set',
-      action: 'srem',
+      type: "set",
+      action: "srem",
       key,
       member,
       conn: this.getConnection(),
     };
 
-    return this.$http.put('/keys', params);
+    return this.$http.put("/keys", params);
   }
 
   lall(key) {
-    return this.get(key)
+    return this.get(key);
   }
 
   lpush(key, members, seconds) {
     const params = {
-      type: 'list',
-      action: 'lpush',
+      type: "list",
+      action: "lpush",
       key,
       members,
       seconds,
       conn: this.getConnection(),
     };
 
-    return this.$http.put('/keys', params);
+    return this.$http.put("/keys", params);
   }
 
   rpush(key, members, seconds) {
     const params = {
-      type: 'list',
-      action: 'rpush',
+      type: "list",
+      action: "rpush",
       key,
       members,
       seconds,
       conn: this.getConnection(),
     };
 
-    return this.$http.put('/keys', params);
+    return this.$http.put("/keys", params);
   }
 
   lstore(key, members, seconds) {
     const params = {
-      type: 'list',
-      action: 'rpush',
+      type: "list",
+      action: "rpush",
       key,
       members,
       seconds,
       conn: this.getConnection(),
     };
 
-    return this.$http.post('/keys', params);
+    return this.$http.post("/keys", params);
   }
-  
+
   ldel(key, index) {
+    const type = "list";
+    const conn = this.getConnection();
 
-    const type = 'list'
-    const conn = this.getConnection()
-
-    return this.$http.delete('/keys/item', {
+    return this.$http.delete("/keys/item", {
       params: { key, index, type, conn },
     });
   }
 
   lset(key, index, value) {
     const params = {
-      type: 'list',
-      action: 'lset',
+      type: "list",
+      action: "lset",
       key,
       value,
       index,
       conn: this.getConnection(),
     };
 
-    return this.$http.put('/keys', params);
+    return this.$http.put("/keys", params);
   }
 
   zall(key) {
@@ -207,39 +203,39 @@ export default class {
 
   zadd(key, members, seconds = null) {
     const params = {
-      type: 'zset',
+      type: "zset",
       key,
       members,
       seconds,
       conn: this.getConnection(),
     };
 
-    return this.$http.post('/keys', params);
+    return this.$http.post("/keys", params);
   }
 
   zrem(key, member) {
     const params = {
-      type: 'zset',
-      action: 'zrem',
+      type: "zset",
+      action: "zrem",
       key,
       member,
       conn: this.getConnection(),
     };
 
-    return this.$http.put('/keys', params);
+    return this.$http.put("/keys", params);
   }
 
   zset(key, member, score) {
     const params = {
-      type: 'zset',
-      action: 'zset',
+      type: "zset",
+      action: "zset",
       key,
       member,
       score,
       conn: this.getConnection(),
     };
 
-    return this.$http.put('/keys', params);
+    return this.$http.put("/keys", params);
   }
 
   scan(pattern) {
@@ -248,7 +244,7 @@ export default class {
       conn: this.getConnection(),
     };
 
-    return this.$http.get('/scan', { params });
+    return this.$http.get("/scan", { params });
   }
 
   eval(command, db = null) {
@@ -258,7 +254,6 @@ export default class {
       conn: this.getConnection(),
     };
 
-    return this.$http.post('/eval', params);
+    return this.$http.post("/eval", params);
   }
-
 }

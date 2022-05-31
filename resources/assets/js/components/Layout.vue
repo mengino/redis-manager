@@ -1,38 +1,50 @@
 <template>
-    <div id='app'>
-        <el-container>
-            <el-header height="150px;">
+  <div id="app">
+    <el-container>
+      <el-header height="150px;">
+        <el-row>
+          <el-col :span="6">
+            <img
+              src="/vendor/redis-manager/img/logo.svg"
+              width="150px;"
+              height="50px;"
+            />
+          </el-col>
 
-                <el-row>
-                    <el-col :span="6">
-                        <img src="/vendor/redis-manager/img/logo.svg" width="150px;" height="50px;">
-                    </el-col>
+          <el-col :span="8">
+            <el-tag v-for="(item, index) in info" :key="index" style="margin-top: 8px; margin-right: 8px;">
+              {{ index }}：{{ item }}
+            </el-tag>
+          </el-col>
 
-                    <el-col :span="4" :offset="14">
-                        <el-select v-model="current" style="width:100%;" @change="changeConnection">
-                            <el-option
-                                    v-for="conn in connections"
-                                    :key="conn"
-                                    :label="conn"
-                                    :value="conn">
-                            </el-option>
-                        </el-select>
-
-                    </el-col>
-                </el-row>
-
-            </el-header>
-            <el-container>
-                <el-aside width="200px">
-                    <siderbar/>
-                </el-aside>
-                <el-main>
-                    <slot/>
-                </el-main>
-            </el-container>
-
-        </el-container>
-    </div>
+          <el-col :span="4" :offset="6">
+            <el-select
+              v-model="current"
+              style="width:100%;"
+              @change="changeConnection"
+              placeholder="请选择 redis 实例"
+            >
+              <el-option
+                v-for="conn in connections"
+                :key="conn"
+                :label="conn"
+                :value="conn"
+              >
+              </el-option>
+            </el-select>
+          </el-col>
+        </el-row>
+      </el-header>
+      <el-container>
+        <el-aside width="200px">
+          <siderbar />
+        </el-aside>
+        <el-main>
+          <slot />
+        </el-main>
+      </el-container>
+    </el-container>
+  </div>
 </template>
 
 <style>
@@ -65,15 +77,28 @@ export default {
   data() {
     return {
       connections: [],
-      current: ""
+      current: "",
+      info: "",
     };
   },
 
   mounted() {
     this.setDefaultConnection();
 
-    this.$redis.connections().then(response => {
-      this.connections = response.data;
+    this.$redis.connections().then(({ data: { info, list, type } }) => {
+      this.info = info;
+      localStorage.setItem("readonly", type);
+
+      this.connections = list;
+
+      if (!this.current) {
+        if (this.connections.length) {
+          this.current = this.connections[0];
+          this.changeConnection();
+        } else {
+          this.$message("请选择redis实例");
+        }
+      }
     });
   },
 
@@ -87,9 +112,9 @@ export default {
     },
 
     setDefaultConnection() {
-      (this.current = localStorage.getItem("conn") || "default"),
+      (this.current = localStorage.getItem("conn") || ""),
         (this.$redis.conn = this.current);
-    }
-  }
+    },
+  },
 };
 </script>

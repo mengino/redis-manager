@@ -1,33 +1,34 @@
 <template>
-    <div class="hash-form">
-        <el-form :model="form" :rules="rules" ref="form" label-width="100px">
-            <el-form-item label="Key" prop="key">
-                <el-input v-model="form.key"></el-input>
-            </el-form-item>
-            <el-form-item label="Expire" prop="expire">
-                <el-input-number v-model="form.expire" :min="-1"></el-input-number>
-            </el-form-item>
+  <div class="hash-form">
+    <el-form :model="form" :rules="rules" ref="form" label-width="100px">
+      <el-form-item label="Key" prop="key">
+        <el-input v-model="form.key"></el-input>
+      </el-form-item>
+      <el-form-item label="Expire" prop="expire">
+        <el-input-number v-model="form.expire" :min="-1"></el-input-number>
+      </el-form-item>
 
-            <el-form-item
-                    v-for="(field, index) in form.fields"
-                    :label="'Field ' + index"
-                    :key="index"
-                    :prop="'fields.' + index + '.value'">
-                <el-input v-model="field.name" class="name"></el-input>
-                <el-input v-model="field.value" class="value"></el-input>
-                <el-button @click.prevent="removeField(field)">Remove</el-button>
-            </el-form-item>
+      <el-form-item
+        v-for="(field, index) in form.fields"
+        :label="'Field ' + index"
+        :key="index"
+        :prop="'fields.' + index + '.value'"
+      >
+        <el-input v-model="field.name" class="name"></el-input>
+        <el-input v-model="field.value" class="value"></el-input>
+        <el-button @click.prevent="removeField(field)">Remove</el-button>
+      </el-form-item>
 
-            <el-form-item>
-                <el-button @click="addField" type="success">Add Field</el-button>
-            </el-form-item>
+      <el-form-item>
+        <el-button @click="addField" type="success">Add Field</el-button>
+      </el-form-item>
 
-            <el-form-item>
-                <el-button type="primary" @click="hmset('form')">Submit</el-button>
-                <el-button @click="resetForm('form')">Reset</el-button>
-            </el-form-item>
-        </el-form>
-    </div>
+      <el-form-item>
+        <el-button type="primary" @click="hmset('form')">Submit</el-button>
+        <el-button @click="resetForm('form')">Reset</el-button>
+      </el-form-item>
+    </el-form>
+  </div>
 </template>
 <style>
 .hash-form {
@@ -44,7 +45,6 @@
 </style>
 <script>
 export default {
-
   data() {
     return {
       form: {
@@ -53,14 +53,18 @@ export default {
         fields: [
           {
             name: "",
-            value: ""
-          }
-        ]
+            value: "",
+          },
+        ],
       },
       rules: {
-        key: [{ required: true, message: "Key is required", trigger: "change" }],
-        expire: [{ required: true, message: "Expire is required", trigger: "change" }]
-      }
+        key: [
+          { required: true, message: "Key is required", trigger: "change" },
+        ],
+        expire: [
+          { required: true, message: "Expire is required", trigger: "change" },
+        ],
+      },
     };
   },
 
@@ -69,23 +73,21 @@ export default {
   },
 
   methods: {
-
     hmset(formName) {
-      this.$refs[formName].validate(valid => {
+      this.$refs[formName].validate((valid) => {
         if (!valid) {
           return false;
         }
 
         this.$redis
           .hmset(this.form.key, this.form.fields, this.form.expire)
-          .then(response => {
+          .then((response) => {
             this.$message({
               type: "success",
-              message: "Saved!"
+              message: "Saved!",
             });
 
-              this.$router.push({ path: "/" });
-          
+            this.$router.push({ path: "/" });
           });
       });
     },
@@ -104,6 +106,6 @@ export default {
     addField() {
       this.form.fields.push({ value: "", name: "" });
     },
-  }
+  },
 };
 </script>

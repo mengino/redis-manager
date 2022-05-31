@@ -1,25 +1,26 @@
-
 <template>
-    <layout>
+  <layout>
+    <el-card class="box-card">
+      <div slot="header" class="clearfix">
+        <span>Create </span>
+        <el-dropdown @command="create">
+          <span class="el-dropdown-link">
+            {{ current() }}<i class="el-icon-arrow-down el-icon--right"></i>
+          </span>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item
+              v-for="type in others()"
+              :key="type"
+              :command="type"
+              >{{ type.toUpperCase() }}</el-dropdown-item
+            >
+          </el-dropdown-menu>
+        </el-dropdown>
+      </div>
 
-        <el-card class="box-card">
-            <div slot="header" class="clearfix">
-
-              <span>Create </span>
-              <el-dropdown @command="create">
-                <span class="el-dropdown-link">
-                  {{ current() }}<i class="el-icon-arrow-down el-icon--right"></i>
-                </span>
-                  <el-dropdown-menu slot="dropdown">
-                      <el-dropdown-item v-for="type in others()" :key="type" :command="type">{{ type.toUpperCase() }}</el-dropdown-item>
-                  </el-dropdown-menu>
-              </el-dropdown>
-            </div>
-
-            <router-view/>
-
-        </el-card>
-    </layout>
+      <router-view />
+    </el-card>
+  </layout>
 </template>
 
 <style>
@@ -60,4 +61,3 @@ export default {
   }
 };
 </script>
-

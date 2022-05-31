@@ -1,163 +1,157 @@
 <template>
+  <el-card class="box-card">
+    <div slot="header" class="clearfix">
+      <span>CPU</span>
+    </div>
 
-    <el-card class="box-card">
-        <div slot="header" class="clearfix">
-            <span>CPU</span>
-        </div>
-
-        <div class="chart">
-            <line-chart :chart-data="collection" :options="options" :height="200"></line-chart>
-        </div>
-    </el-card>
-
+    <div class="chart">
+      <line-chart :chart-data="collection" :options="options" :height="200" />
+    </div>
+  </el-card>
 </template>
 
 <script>
+import LineChart from "../../components/Charts/LineChart.js";
 
-    import Vue from 'vue';
-    import LineChart from '../../components/Charts/LineChart.js'
+export default {
+  components: {
+    LineChart,
+  },
 
-    export default {
-
-        components: {
-            LineChart
+  data() {
+    return {
+      collection: null,
+      length: 20,
+      options: {
+        responsive: true,
+        title: {
+          display: true,
+          text: "CPU",
         },
-
-        data() {
-            return {
-                collection: null,
-                length: 20,
-                options: {
-                    responsive: true,
-                    title:{
-                        display:true,
-                        text:'CPU'
-                    },
-                    tooltips: {
-                        mode: 'index',
-                        intersect: false,
-                    },
-                    hover: {
-                        mode: 'nearest',
-                        intersect: true
-                    },
-                    scales: {
-                        xAxes: [{
-                            display: true,
-                            scaleLabel: {
-                                display: true,
-                                labelString: 'Time'
-                            }
-                        }],
-                        yAxes: [{
-                            display: true,
-                            scaleLabel: {
-                                display: true,
-                                labelString: 'Value'
-                            }
-                        }]
-                    }
-                },
-            }
+        tooltips: {
+          mode: "index",
+          intersect: false,
         },
-
-        mounted () {
-            this.fillData();
-
-            this.refreshPeriodically();
-
-            Bus.$on("connectionChanged", data => {
-            
-                this.collection = null;
-                this.fillData();
-            });
+        hover: {
+          mode: "nearest",
+          intersect: true,
         },
-
-        methods: {
-            refreshPeriodically() {
-                this.interval = setInterval(() => {
-                    this.fillData();
-                }, 3000);
+        scales: {
+          xAxes: [
+            {
+              display: true,
+              scaleLabel: {
+                display: true,
+                labelString: "Time",
+              },
             },
-
-            time () {
-                const d = new Date();
-
-                return d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+          ],
+          yAxes: [
+            {
+              display: true,
+              scaleLabel: {
+                display: true,
+                labelString: "Value",
+              },
             },
+          ],
+        },
+      },
+    };
+  },
 
-            fillData () {
+  mounted() {
+    this.fillData();
 
-                this.$redis.info('cpu').then(response => {
+    this.refreshPeriodically();
 
-                    if (!this.collection) {
+    Bus.$on("connectionChanged", (data) => {
+      this.collection = null;
+      this.fillData();
+    });
+  },
 
-                        let data = {
-                            labels: [],
-                            datasets: [],
-                        };
+  methods: {
+    refreshPeriodically() {
+      this.interval = setInterval(() => {
+        this.fillData();
+      }, 3000);
+    },
 
-                        if (data.labels.length < this.length) {
-                            data.labels.push(this.time())
-                        }
+    time() {
+      const d = new Date();
 
-                        data.datasets = [{
-                            label: "used_cpu_user",
-                            fill: false,
-                            backgroundColor: 'rgb(255, 99, 132)',
-                            borderColor: 'rgb(255, 99, 132)',
-                            data: [response.data.used_cpu_user],
-                        }, {
-                            label: "used_cpu_sys",
-                            fill: false,
-                            backgroundColor: 'rgb(54, 162, 235)',
-                            borderColor: 'rgb(54, 162, 235)',
-                            data: [response.data.used_cpu_sys],
-                        }];
+      return d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+    },
 
-                        this.collection = data
-                    } else {
-                        this.collection = this.newData(response.data)
-                    }
+    fillData() {
+      this.$redis.info("cpu").then((response) => {
+        if (!this.collection) {
+          let data = {
+            labels: [],
+            datasets: [],
+          };
 
-                });
+          if (data.labels.length < this.length) {
+            data.labels.push(this.time());
+          }
 
+          data.datasets = [
+            {
+              label: "used_cpu_user",
+              fill: false,
+              backgroundColor: "rgb(255, 99, 132)",
+              borderColor: "rgb(255, 99, 132)",
+              data: [response.data.used_cpu_user],
             },
+            {
+              label: "used_cpu_sys",
+              fill: false,
+              backgroundColor: "rgb(54, 162, 235)",
+              borderColor: "rgb(54, 162, 235)",
+              data: [response.data.used_cpu_sys],
+            },
+          ];
 
-            newData(response) {
+          this.collection = data;
+        } else {
+          this.collection = this.newData(response.data);
+        }
+      });
+    },
 
-                let data = {
-                    labels: this.collection.labels,
-                    datasets: this.collection.datasets
-                };
+    newData(response) {
+      let data = {
+        labels: this.collection.labels,
+        datasets: this.collection.datasets,
+      };
 
-                data.labels.push(this.time());
+      data.labels.push(this.time());
 
-                data.datasets[0].data.push(response.used_cpu_user);
-                data.datasets[1].data.push(response.used_cpu_sys);
+      data.datasets[0].data.push(response.used_cpu_user);
+      data.datasets[1].data.push(response.used_cpu_sys);
 
-                if (data.labels.length > this.length) {
-                    data.labels.shift();
-                    data.datasets[0].data.shift();
-                    data.datasets[1].data.shift();
-                }
+      if (data.labels.length > this.length) {
+        data.labels.shift();
+        data.datasets[0].data.shift();
+        data.datasets[1].data.shift();
+      }
 
-                return data;
-            }
-        },
+      return data;
+    },
+  },
 
-        beforeDestroy() {
-            clearInterval(this.interval);
+  beforeDestroy() {
+    clearInterval(this.interval);
 
-            Bus.$off("connectionChanged");
-        },
-    }
-
+    Bus.$off("connectionChanged");
+  },
+};
 </script>
 
 <style>
-    .chart {
-        width: 100%;
-        margin:  10px auto;
-    }
+.chart {
+  width: 100%;
+  margin: 10px auto;
+}
 </style>

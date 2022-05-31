@@ -1,29 +1,37 @@
 <template>
-    <el-card class="box-card">
-        <div slot="header" class="clearfix">
-            <span> Throughput </span>
-        </div>
+  <el-card class="box-card">
+    <div slot="header" class="clearfix">
+      <span> Throughput </span>
+    </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <td class="text">Command</td>
-                    <td class="text">calls</td>
-                    <td class="text">usec</td>
-                    <td class="text">usec_per_call</td>
-                </tr>
-            </thead>
+    <table>
+      <thead>
+        <tr>
+          <td class="text">Command</td>
+          <td class="text">calls</td>
+          <td class="text">usec</td>
+          <td class="text">usec_per_call</td>
+        </tr>
+      </thead>
 
-            <tbody>
-                <tr v-for="(info, command) in commands" :key="command">
-                    <td class="text"><el-tag>{{ command }}</el-tag></td>
-                    <td><code>{{ info.calls }}</code></td>
-                    <td><code>{{ info.usec }}</code></td>
-                    <td><code>{{ info.usec_per_call }}</code></td>
-                </tr>
-            </tbody>
-        </table>
-    </el-card>
+      <tbody>
+        <tr v-for="(info, command) in commands" :key="command">
+          <td class="text">
+            <el-tag>{{ command }}</el-tag>
+          </td>
+          <td>
+            <code>{{ info.calls }}</code>
+          </td>
+          <td>
+            <code>{{ info.usec }}</code>
+          </td>
+          <td>
+            <code>{{ info.usec_per_call }}</code>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </el-card>
 </template>
 <style>
 code {
@@ -58,18 +66,17 @@ table td {
 }
 </style>
 <script>
-
 export default {
   data() {
     return {
-      commands: {}
+      commands: {},
     };
   },
 
   mounted() {
     this.fetchInfo();
 
-    Bus.$on("connectionChanged", data => {
+    Bus.$on("connectionChanged", (data) => {
       this.fetchInfo();
     });
   },
@@ -80,10 +87,10 @@ export default {
 
   methods: {
     fetchInfo() {
-        this.$redis.info('commandstats').then(response => {
-          this.commands = response.data;
-        });
-    }
-  }
+      this.$redis.info("commandstats").then((response) => {
+        this.commands = response.data;
+      });
+    },
+  },
 };
 </script>

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Encore\RedisManager;
 
@@ -13,7 +14,6 @@ use Illuminate\Http\Request;
 use Illuminate\Redis\Connections\Connection;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Redis;
-use Predis\Collection\Iterator\Keyspace;
 use Predis\Pipeline\Pipeline;
 
 /**
@@ -26,10 +26,10 @@ class RedisManager
      */
     protected $dataTyps = [
         'string' => Strings::class,
-        'hash'   => Hashes::class,
-        'set'    => Sets::class,
-        'zset'   => SortedSets::class,
-        'list'   => Lists::class,
+        'hash' => Hashes::class,
+        'set' => Sets::class,
+        'zset' => SortedSets::class,
+        'list' => Lists::class,
     ];
 
     /**
@@ -193,22 +193,13 @@ class RedisManager
      * Scan keys in redis by giving pattern.
      *
      * @param string $pattern
-     * @param int    $count
      *
      * @return array|\Predis\Pipeline\Pipeline
      */
-    public function scan($pattern = '*', $count = 100)
+    public function scan($pattern = '*')
     {
         $client = $this->getConnection();
-        $keys = [];
-
-        foreach (new Keyspace($client->client(), $pattern) as $item) {
-            $keys[] = $item;
-
-            if (count($keys) == $count) {
-                break;
-            }
-        }
+        $keys = array_unique(array_filter(explode(',', $pattern), fn ($k) => $k !== '0' && strpos($k, '*') === false));
 
         $script = <<<'LUA'
         local type = redis.call('type', KEYS[1])
@@ -223,13 +214,13 @@ LUA;
             }
         });
 
-        return collect($keys)->map(function ($key) {
+        return collect($keys)->filter(fn ($key) => $key[2] !== -2)->map(function ($key) {
             return [
                 'key'  => $key[0],
                 'type' => (string) $key[1],
                 'ttl'  => $key[2],
             ];
-        });
+        })->values();
     }
 
     /**
