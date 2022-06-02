@@ -3,7 +3,7 @@
     <div>
       <div style="margin-top: 15px">
         <el-input
-          placeholder="请输入要查询的 key（不支持模糊查询，逗号分隔可以查询多个key，格式如 a,b,c）"
+          placeholder="请输入要查询的 key（不支持模糊查询，逗号分隔可以查询多个 key，格式如 a,b,c）"
           v-model="pattern"
           @keyup.enter.native="scan"
         />

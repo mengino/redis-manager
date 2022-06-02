@@ -11,18 +11,23 @@
             />
           </el-col>
 
-          <el-col :span="8">
-            <el-tag v-for="(item, index) in info" :key="index" style="margin-top: 8px; margin-right: 8px;">
-              {{ index }}：{{ item }}
+          <el-col :span="12" style="min-height: 40px">
+            <el-tag
+              v-for="(item, index) in info"
+              :key="index"
+              style="margin-top: 8px; margin-right: 8px;"
+              :type="item.type || 'default'"
+            >
+              {{ item.name }}: {{ item.value }}
             </el-tag>
           </el-col>
 
-          <el-col :span="4" :offset="6">
+          <el-col :span="4" :offset="2">
             <el-select
               v-model="current"
               style="width:100%;"
               @change="changeConnection"
-              placeholder="请选择 redis 实例"
+              placeholder="choose an instance"
             >
               <el-option
                 v-for="conn in connections"
@@ -96,7 +101,7 @@ export default {
           this.current = this.connections[0];
           this.changeConnection();
         } else {
-          this.$message("请选择redis实例");
+          this.$message("please choose an instance first!");
         }
       }
     });
